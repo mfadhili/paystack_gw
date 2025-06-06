@@ -4,10 +4,10 @@
 
 import { Request, Response } from "express";
 import { getCustomerPortalService } from "../../../../services/billingServices/paddleBillingServices/customerServices/customerPortalService";
-import {AuthenticatedRequest} from "../../../../middlewares/authMiddleware/authenticateUser";
+// import {AuthenticatedRequest} from "../../../../middlewares/authMiddleware/authenticateUser";
 
-export const getCustomerPortalController = async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
+export const getCustomerPortalController = async (req: Request, res: Response) => {
+/*    const userId = req.user.id;
     const accountId = req.user.account;
     try {
         const portal = await getCustomerPortalService({ userId, accountId });
@@ -32,7 +32,7 @@ export const getCustomerPortalController = async (req: AuthenticatedRequest, res
             success: false,
             message: error.message || "Internal server error",
         });
-    }
+    }*/
 };
 
 
