@@ -1,7 +1,7 @@
-// src/models/billing/BillingTransactionModel.ts
+// src/models/billing/PaystackBillingTransactionModel.ts
 import mongoose, { Schema, Document } from "mongoose";
 
-interface IBillingTransaction extends Document {
+interface IPaystackBillingTransaction extends Document {
     reference: string;
     status: string;
     amount: number;
@@ -40,7 +40,7 @@ interface IBillingTransaction extends Document {
     };
 }
 
-const BillingTransactionSchema = new Schema<IBillingTransaction>({
+const PaystackBillingTransactionSchema = new Schema<IPaystackBillingTransaction>({
     reference: { type: String, required: true, unique: true },
     status: { type: String, required: true }, // success, failed, etc.
     amount: { type: Number, required: true },
@@ -79,9 +79,9 @@ const BillingTransactionSchema = new Schema<IBillingTransaction>({
     },
 });
 
-const BillingTransactionModel = mongoose.model<IBillingTransaction>(
-    "BillingTransaction",
-    BillingTransactionSchema
+const PaystackBillingTransactionModel = mongoose.model<IPaystackBillingTransaction>(
+    "PaystackBillingTransaction",
+    PaystackBillingTransactionSchema
 );
 
-export { BillingTransactionModel, IBillingTransaction };
+export { PaystackBillingTransactionModel, IPaystackBillingTransaction };

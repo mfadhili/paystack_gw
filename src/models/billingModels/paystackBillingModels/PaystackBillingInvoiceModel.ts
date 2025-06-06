@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface IInvoice extends Document {
+export interface IPaystackInvoice extends Document {
     invoiceCode: string;
     domain: string;
     amount: number;
@@ -59,7 +59,7 @@ export interface IInvoice extends Document {
     updatedAt: Date;
 }
 
-const BillingInvoiceSchema = new Schema<IInvoice>({
+const PaystackBillingInvoiceSchema = new Schema<IPaystackInvoice>({
     invoiceCode: { type: String, required: true, unique: true },
     domain: { type: String, required: true },
     amount: { type: Number, required: true },
@@ -119,4 +119,4 @@ const BillingInvoiceSchema = new Schema<IInvoice>({
     updatedAt: { type: Date, required: true }
 });
 
-export default mongoose.model<IInvoice>('BillingInvoice', BillingInvoiceSchema);
+export default mongoose.model<IPaystackInvoice>('BillingInvoice', PaystackBillingInvoiceSchema);

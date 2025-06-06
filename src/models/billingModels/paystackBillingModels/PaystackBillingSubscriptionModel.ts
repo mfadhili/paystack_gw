@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IBillingSubscription extends Document {
+export interface IPaystackBillingSubscription extends Document {
     subscriptionCode: string;
     emailToken: string;
     customerId: number;
@@ -35,7 +35,7 @@ export interface IBillingSubscription extends Document {
     updatedAt: Date;
 }
 
-const BillingSubscriptionSchema = new Schema<IBillingSubscription>({
+const PaystackBillingSubscriptionSchema = new Schema<IPaystackBillingSubscription>({
     subscriptionCode: { type: String, required: true, unique: true },
     emailToken: { type: String, required: true },
     customerId: { type: Number, required: true },
@@ -70,4 +70,4 @@ const BillingSubscriptionSchema = new Schema<IBillingSubscription>({
     updatedAt: { type: Date, required: true }
 });
 
-export default mongoose.model<IBillingSubscription>('BillingSubscription', BillingSubscriptionSchema);
+export default mongoose.model<IPaystackBillingSubscription>('PaystackBillingSubscription', PaystackBillingSubscriptionSchema);

@@ -1,5 +1,6 @@
 import axios from 'axios';
-import {BillingCustomerModel} from "../../../../../models/billingModels/paddleBillingModels/BillingCustomerModel";
+import PaystackBillingCustomerModel
+    from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingCustomerModel";
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY!;
 
@@ -40,7 +41,7 @@ export const createBillingCustomerService = async (payload: {
         updatedAt
     } = response.data.data;
 
-    const customer = new BillingCustomerModel({
+    const customer = new PaystackBillingCustomerModel({
         email,
         firstName: first_name,
         lastName: last_name,

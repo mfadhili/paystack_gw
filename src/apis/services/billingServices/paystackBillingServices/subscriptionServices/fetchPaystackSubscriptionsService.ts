@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { PAYSTACK_SECRET_KEY } from '../../../../../config/config';
-import BillingSubscriptionModel
-    from "../../../../../models/billingModels/paystackBillingModels/BillingSubscriptionModel";
+import PaystackBillingSubscriptionModel
+    from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingSubscriptionModel";
+
 
 export const fetchAndStorePaystackSubscriptions = async (): Promise<void> => {
     let page = 1;
@@ -21,7 +22,7 @@ export const fetchAndStorePaystackSubscriptions = async (): Promise<void> => {
         const subscriptions = response.data.data;
 
         for (const sub of subscriptions) {
-            await BillingSubscriptionModel.findOneAndUpdate(
+            await PaystackBillingSubscriptionModel.findOneAndUpdate(
                 { paystackSubscriptionId: sub.id },
                 {
                     subscriptionCode: sub.subscription_code,

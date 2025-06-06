@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IBillingCustomer extends Document {
+export interface IPaystackBillingCustomer extends Document {
     email: string;
     firstName?: string;
     lastName?: string;
@@ -32,7 +32,7 @@ export interface IBillingCustomer extends Document {
     updatedAt: Date;
 }
 
-const BillingCustomerSchema: Schema<IBillingCustomer> = new Schema({
+const PaystackBillingCustomerSchema: Schema<IPaystackBillingCustomer> = new Schema({
     email: { type: String, required: true },
     firstName: { type: String },
     lastName: { type: String },
@@ -66,4 +66,4 @@ const BillingCustomerSchema: Schema<IBillingCustomer> = new Schema({
     updatedAt: { type: Date, required: true },
 });
 
-export default mongoose.model<IBillingCustomer>('BillingCustomer', BillingCustomerSchema);
+export default mongoose.model<IPaystackBillingCustomer>('PaystackBillingCustomer', PaystackBillingCustomerSchema);

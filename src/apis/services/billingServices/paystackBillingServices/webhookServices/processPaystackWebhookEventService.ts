@@ -2,13 +2,16 @@
 import {
     PaystackWebhookEventModel
 } from "../../../../../models/billingModels/paystackBillingModels/PaystackWebhookEventModel";
-import BillingSubscriptionModel
-    from "../../../../../models/billingModels/paystackBillingModels/BillingSubscriptionModel";
 import {
-    BillingTransactionModel
-} from "../../../../../models/billingModels/paystackBillingModels/BillingTransactionModel";
-import BillingInvoiceModel from "../../../../../models/billingModels/paystackBillingModels/BillingInvoiceModel";
-import {BillingCustomerModel} from "../../../../../models/billingModels/paddleBillingModels/BillingCustomerModel";
+    PaystackBillingTransactionModel
+} from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingTransactionModel";
+import PaystackBillingCustomerModel
+    from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingCustomerModel";
+import PaystackBillingSubscriptionModel
+    from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingSubscriptionModel";
+import PaystackBillingInvoiceModel
+    from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingInvoiceModel";
+
 
 export const processPaystackWebhookEventService = async (eventId: string) => {
     const event = await PaystackWebhookEventModel.findById(eventId);
@@ -20,7 +23,7 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
         case "invoice.create":
         case "invoice.update":
         case "invoice.payment_failed":
-            await BillingInvoiceModel.findOneAndUpdate(
+            await PaystackBillingInvoiceModel.findOneAndUpdate(
                 { invoiceCode: data.invoice_code },
                 {
                     invoiceCode: data.invoice_code,
@@ -44,7 +47,7 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
             break;
 
         case "charge.success":
-            await BillingTransactionModel.findOneAndUpdate(
+            await PaystackBillingTransactionModel.findOneAndUpdate(
                 { reference: data.reference },
                 {
                     reference: data.reference,
@@ -77,7 +80,7 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
         case "subscription.create":
         case "subscription.disable":
         case "subscription.not_renew":
-            await BillingSubscriptionModel.findOneAndUpdate(
+            await PaystackBillingSubscriptionModel.findOneAndUpdate(
                 { subscriptionCode: data.subscription_code },
                 {
                     subscriptionCode: data.subscription_code,
@@ -104,7 +107,7 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
 
         case "customeridentification.success":
         case "customeridentification.failed":
-            await BillingCustomerModel.findOneAndUpdate(
+            await PaystackBillingCustomerModel.findOneAndUpdate(
                 { customerCode: data.customer_code },
                 {
                     email: data.email,

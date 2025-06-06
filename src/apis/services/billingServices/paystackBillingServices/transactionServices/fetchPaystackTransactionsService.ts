@@ -3,8 +3,9 @@
 import axios from "axios";
 import { PAYSTACK_SECRET_KEY } from "../../../../../config/config";
 import {
-    BillingTransactionModel
-} from "../../../../../models/billingModels/paystackBillingModels/BillingTransactionModel";
+    PaystackBillingTransactionModel
+} from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingTransactionModel";
+
 
 export const fetchAndStorePaystackTransactions = async () => {
     let page = 1;
@@ -51,7 +52,7 @@ export const fetchAndStorePaystackTransactions = async () => {
                 authorization: tx.authorization || undefined
             };
 
-            await BillingTransactionModel.findOneAndUpdate(
+            await PaystackBillingTransactionModel.findOneAndUpdate(
                 { reference: tx.reference },
                 update,
                 { upsert: true, new: true }

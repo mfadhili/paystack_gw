@@ -1,8 +1,8 @@
 import axios from "axios";
 import { PAYSTACK_SECRET_KEY } from "../../../../../config/config";
-import BillingPlanModel, {
-    IBillingPlan
-} from "../../../../../models/billingModels/paystackBillingModels/BillingPlanModel";
+import PaystackBillingPlanModel
+    , {IPaystackBillingPlan} from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingPlanModel";
+
 
 export const fetchAndStorePaystackPlans = async (): Promise<void> => {
     try {
@@ -15,9 +15,9 @@ export const fetchAndStorePaystackPlans = async (): Promise<void> => {
         const plans: any[] = response.data?.data || [];
 
         for (const plan of plans) {
-            const existing = await BillingPlanModel.findOne({ planCode: plan.plan_code });
+            const existing = await PaystackBillingPlanModel.findOne({ planCode: plan.plan_code });
 
-            const payload: Partial<IBillingPlan> = {
+            const payload: Partial<IPaystackBillingPlan> = {
                 name: plan.name,
                 description: plan.description,
                 amount: plan.amount,
@@ -37,9 +37,9 @@ export const fetchAndStorePaystackPlans = async (): Promise<void> => {
             };
 
             if (existing) {
-                await BillingPlanModel.updateOne({ planCode: plan.plan_code }, payload);
+                await PaystackBillingPlanModel.updateOne({ planCode: plan.plan_code }, payload);
             } else {
-                await BillingPlanModel.create(payload);
+                await PaystackBillingPlanModel.create(payload);
             }
         }
 

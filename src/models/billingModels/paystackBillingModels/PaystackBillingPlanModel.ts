@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IBillingPlan extends Document {
+export interface IPaystackBillingPlan extends Document {
     name: string;
     description?: string;
     amount: number;
@@ -19,7 +19,7 @@ export interface IBillingPlan extends Document {
     updatedAt: Date;
 }
 
-const BillingPlanSchema = new Schema<IBillingPlan>({
+const PaystackBillingPlanSchema = new Schema<IPaystackBillingPlan>({
     name: { type: String, required: true },
     description: { type: String },
     amount: { type: Number, required: true },
@@ -38,4 +38,4 @@ const BillingPlanSchema = new Schema<IBillingPlan>({
     updatedAt: { type: Date, required: true },
 });
 
-export default mongoose.model<IBillingPlan>('BillingPlan', BillingPlanSchema);
+export default mongoose.model<IPaystackBillingPlan>('PaystackBillingPlan', PaystackBillingPlanSchema);
