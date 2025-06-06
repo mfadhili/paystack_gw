@@ -1,0 +1,7 @@
+node_modules
+dist
+resources
+postman
+key
+*.log
+.env
