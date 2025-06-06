@@ -1,7 +1,6 @@
 // src/apis/routes/index.ts
 import { Express } from 'express';
 
-import paddleBillingRoute from "./billingRoutes/paddleBillingRoute";
 import usagePolicyRoute from "./billingRoutes/usagePolicyRoute";
 import paystackWebhookRoutes from "./billingRoutes/paystackWebhookRoutes";
 
