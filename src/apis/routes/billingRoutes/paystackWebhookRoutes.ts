@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/webhook-paystack-qwsa", paystackWebhookController);
 
 router.post('/create-customer', createBillingCustomerController);
-router.post('/get-customer/:id', getBillingCustomerByIdController);
+router.get('/get-customer/:id', getBillingCustomerByIdController);
 
 
 
