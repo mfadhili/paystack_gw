@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-// POST /api/billing/webhook-paystack
+// POST /paystack/billing/
 router.post("/webhook-paystack-qwsa", paystackWebhookController);
 
 router.post('/create-customer', createBillingCustomerController);

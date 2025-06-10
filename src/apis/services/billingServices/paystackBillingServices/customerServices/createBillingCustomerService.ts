@@ -1,8 +1,9 @@
 import axios from 'axios';
 import PaystackBillingCustomerModel
     from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingCustomerModel";
+import {PAYSTACK_SECRET_KEY} from "../../../../../config/config";
 
-const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY!;
+const PAYSTACK_SECRET = PAYSTACK_SECRET_KEY;
 
 export const createBillingCustomerService = async (payload: {
     email: string;
