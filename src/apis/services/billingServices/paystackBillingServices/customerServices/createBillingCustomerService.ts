@@ -67,7 +67,7 @@ export const createBillingCustomerService = async (payload: {
     trialEnd.setDate(trialEnd.getDate() + TRIAL_PERIOD_DAYS);
 
 
-    const subscriptionStatus = new BillingSubscriptionStatusModel({
+    await BillingSubscriptionStatusModel.create({
         billingCustomerId: saved._id,
         paymentGwCustomerId: customer_code,
         subscriptionId: null,
@@ -77,6 +77,8 @@ export const createBillingCustomerService = async (payload: {
         active: false,
         syncedFromGatewayAt: new Date(),
     })
+
+
     return {
         _id: saved._id,
         email: saved.email,
