@@ -1,9 +1,11 @@
 import axios from 'axios';
 import PaystackBillingCustomerModel
     from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingCustomerModel";
-import {PAYSTACK_SECRET_KEY} from "../../../../../config/config";
+import {PAYSTACK_SECRET_KEY, TRIAL_PERIOD_DAYS} from "../../../../../config/config";
+import {BillingSubscriptionStatusModel} from "../../../../../models/billingModels/BillingSubscriptionStatus";
 
 const PAYSTACK_SECRET = PAYSTACK_SECRET_KEY;
+
 
 export const createBillingCustomerService = async (payload: {
     email: string;
@@ -60,6 +62,21 @@ export const createBillingCustomerService = async (payload: {
 
     const saved = await customer.save();
 
+    // Calculate trial end date correctly
+    const trialEnd = new Date();
+    trialEnd.setDate(trialEnd.getDate() + TRIAL_PERIOD_DAYS);
+
+
+    const subscriptionStatus = new BillingSubscriptionStatusModel({
+        billingCustomerId: saved._id,
+        paymentGwCustomerId: customer_code,
+        subscriptionId: null,
+        subscriptionStatus: "trialing",
+        nextBillingDate: trialEnd,
+        trialing: true,
+        active: false,
+        syncedFromGatewayAt: new Date(),
+    })
     return {
         _id: saved._id,
         email: saved.email,

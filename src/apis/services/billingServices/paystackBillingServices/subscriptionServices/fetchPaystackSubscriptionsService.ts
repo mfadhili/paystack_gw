@@ -2,6 +2,7 @@ import axios from 'axios';
 import { PAYSTACK_SECRET_KEY } from '../../../../../config/config';
 import PaystackBillingSubscriptionModel
     from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingSubscriptionModel";
+import { BillingSubscriptionStatusModel } from '../../../../../models/billingModels/BillingSubscriptionStatus';
 
 
 export const fetchAndStorePaystackSubscriptions = async (): Promise<void> => {
@@ -23,12 +24,12 @@ export const fetchAndStorePaystackSubscriptions = async (): Promise<void> => {
 
         for (const sub of subscriptions) {
             await PaystackBillingSubscriptionModel.findOneAndUpdate(
-                { paystackSubscriptionId: sub.id },
+                { paystackSubscriptionId: sub.subscription_code },
                 {
                     subscriptionCode: sub.subscription_code,
                     emailToken: sub.email_token,
-                    customerId: sub.customer.id,
-                    planId: sub.plan.id,
+                    customerId: sub.customer.customer_code,
+                    planId: sub.plan.plan_code,
                     integration: sub.integration,
                     domain: sub.domain,
                     status: sub.status,
@@ -54,9 +55,22 @@ export const fetchAndStorePaystackSubscriptions = async (): Promise<void> => {
                     cronExpression: sub.cron_expression,
                     nextPaymentDate: sub.next_payment_date,
                     openInvoice: sub.open_invoice,
-                    paystackSubscriptionId: sub.id,
+                    paystackSubscriptionId: sub.subscription_code,
                     createdAt: sub.createdAt,
                     updatedAt: sub.updatedAt,
+                },
+                { upsert: true, new: true }
+            );
+
+            await BillingSubscriptionStatusModel.findOneAndUpdate(
+                { paymentGwCustomerId: sub.customer.customer_code },
+                {
+                    subscriptionId: sub.subscription_code,
+                    subscriptionStatus: sub.status,
+                    nextBillingDate: sub.next_payment_date,
+                    trialing: sub.status === "trialing",
+                    active: sub.status === "active",
+                    syncedFromGatewayAt: new Date()
                 },
                 { upsert: true, new: true }
             );
