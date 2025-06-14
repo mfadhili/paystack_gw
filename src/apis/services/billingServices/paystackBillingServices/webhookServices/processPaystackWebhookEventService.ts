@@ -11,6 +11,7 @@ import PaystackBillingSubscriptionModel
     from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingSubscriptionModel";
 import PaystackBillingInvoiceModel
     from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingInvoiceModel";
+import {BillingSubscriptionStatusModel} from "../../../../../models/billingModels/BillingSubscriptionStatus";
 
 
 export const processPaystackWebhookEventService = async (eventId: string) => {
@@ -103,6 +104,42 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
                 },
                 { upsert: true, new: true }
             );
+            const customer = await PaystackBillingCustomerModel.findOne({ paystackCustomerId: data.customer?.id });
+            if (customer) {
+                let isActive = false;
+                let isTrialing = false;
+
+                switch (data.status) {
+                    case "active":
+                    case "non-renewing":
+                    case "attention":
+                        isActive = true;
+                        break;
+                    case "completed":
+                    case "cancelled":
+                        isActive = false;
+                        break;
+                    default:
+                        isActive = false;
+                        break;
+                }
+
+                await BillingSubscriptionStatusModel.findOneAndUpdate(
+                    { paymentGwCustomerId: customer.customerCode },
+                    {
+                        // billingCustomerId: customer._id.toString(),
+                        // paymentGwCustomerId: customer.customerCode,
+                        subscriptionId: data.subscription_code,
+                        subscriptionStatus: data.status,
+                        nextBillingDate: data.next_payment_date,
+                        trialing: isTrialing,
+                        active: isActive,
+                        syncedFromGatewayAt: new Date(),
+                        updatedAt: new Date()
+                    },
+                    { upsert: true, new: true }
+                );
+            }
             break;
 
         case "customeridentification.success":
