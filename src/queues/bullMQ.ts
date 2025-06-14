@@ -15,7 +15,7 @@ export const setupBullBoard = (app: Express) => {
 
         ]);
 
-        app.use("/api/admin/queues", router);
+        app.use("/paystack/admin/queues", router);
         console.log(`🚀 BullMQ Dashboard running at http://localhost:5057/api/admin/queues`);
     } catch (error) {
         console.error('Error setting up Bull Board:', error);
