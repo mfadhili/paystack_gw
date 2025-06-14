@@ -1,3 +1,4 @@
+// src/apis/services/billingServices/paystackBillingServices/customerServices/fetchPaystackCustomersService.ts
 import axios from "axios";
 import { PAYSTACK_SECRET_KEY } from "../../../../../config/config";
 import PaystackBillingCustomerModel , {
@@ -43,7 +44,8 @@ export const fetchAndStorePaystackCustomers = async (): Promise<void> => {
                 }
             }
 
-            hasMore = res.data?.meta?.next !== null;
+            const { page: currentPage, pageCount } = res.data.meta;
+            hasMore = currentPage < pageCount;
             page++;
         }
 
