@@ -14,6 +14,9 @@ import {
 import {
     fetchAndStorePaystackTransactions
 } from "../../apis/services/billingServices/paystackBillingServices/transactionServices/fetchPaystackTransactionsService";
+import {
+    checkAndEndTrialsService
+} from "../../apis/services/billingServices/paystackBillingServices/subscriptionServices/checkAndEndTrialsService";
 
 
 export const startPaystackPlanSyncJob = () => {
@@ -112,9 +115,36 @@ export const startPaystackTransactionSyncJob = () => {
     })();
 };
 
+export const startTrialEndJob = () => {
+    const jobName = "TrialEndCheckJob";
+
+    // Run every day at 01:00 AM
+    cron.schedule("0 1 * * *", async () => {
+        const start = new Date();
+        try {
+            await checkAndEndTrialsService();
+            console.log(`[${start.toISOString()}] Cron completed: ${jobName}`);
+        } catch (err) {
+            console.error(`[${start.toISOString()}] Cron failed: ${jobName}`, err);
+        }
+    });
+
+    // Optional: Run once on startup
+    (async () => {
+        try {
+            console.log(`[Init] Running ${jobName} immediately...`);
+            await checkAndEndTrialsService();
+        } catch (err) {
+            console.error(`[Init] Failed ${jobName}`, err);
+        }
+    })();
+};
+
+
 export const runAllCronJobs = () => {
     startPaystackPlanSyncJob();
     startPaystackCustomerSyncJob();
     // startPaystackSubscriptionSyncJob();
     startPaystackTransactionSyncJob();
+    startTrialEndJob(); // 👈 Add this
 };
