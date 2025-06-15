@@ -8,7 +8,9 @@ import {
 import PaystackBillingCustomerModel
     from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingCustomerModel";
 import PaystackBillingSubscriptionModel
-    from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingSubscriptionModel";
+    , {
+    IPaystackBillingSubscription
+} from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingSubscriptionModel";
 import PaystackBillingInvoiceModel
     from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingInvoiceModel";
 import {BillingSubscriptionStatusModel} from "../../../../../models/billingModels/BillingSubscriptionStatus";
@@ -86,27 +88,31 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
         case "subscription.disable":
         case "subscription.not_renew":
             console.log(`[Webhook:Subscription] Processing ${eventType} for subscription ${data.subscription_code}`);
+            const subscriptionUpdate: Partial<IPaystackBillingSubscription> = {
+                status: data.status,
+                nextPaymentDate: data.next_payment_date,
+                cronExpression: data.cron_expression,
+                amount: data.amount,
+                planId: data.plan?.id ?? 0,
+                authorization: data.authorization,
+                updatedAt: new Date()
+            };
+
+            if (eventType === "subscription.create") {
+                subscriptionUpdate.createdAt = isValidDate(data.createdAt) ? new Date(data.createdAt) : new Date();
+                subscriptionUpdate.start = isValidDate(data.createdAt) ? new Date(data.createdAt) : new Date();
+                subscriptionUpdate.subscriptionCode = data.subscription_code;
+                subscriptionUpdate.emailToken = data.email_token;
+                subscriptionUpdate.customerId = data.customer?.id ?? 0;
+                subscriptionUpdate.integration = 0;
+                subscriptionUpdate.domain = data.domain;
+                subscriptionUpdate.quantity = 1;
+                subscriptionUpdate.paystackSubscriptionId = data.id || 0;
+            }
+
             await PaystackBillingSubscriptionModel.findOneAndUpdate(
                 { subscriptionCode: data.subscription_code },
-                {
-                    subscriptionCode: data.subscription_code,
-                    emailToken: data.email_token,
-                    customerId: data.customer?.id ?? 0,
-                    planId: data.plan?.id ?? 0,
-                    integration: 0, // Set from context
-                    domain: data.domain,
-                    status: data.status,
-                    start: isValidDate(data.createdAt) ? new Date(data.createdAt) : new Date(),
-                    quantity: 1,
-                    amount: data.amount,
-                    authorization: data.authorization,
-                    cronExpression: data.cron_expression,
-                    nextPaymentDate: data.next_payment_date,
-                    openInvoice: data.open_invoice,
-                    paystackSubscriptionId: data.id || 0,
-                    createdAt: new Date(data.created_at),
-                    updatedAt: new Date()
-                },
+                subscriptionUpdate,
                 { upsert: true, new: true }
             );
             const customer = await PaystackBillingCustomerModel.findOne({ paystackCustomerId: data.customer?.id });
