@@ -24,6 +24,6 @@ export const setupBullBoard = (app: Express) => {
 
 };
 
-export const paddleWebhookQueue = new Queue("paddle-webhook-queue", {
+export const paddleWebhookQueue = new Queue("paystack-webhook-queue", {
     connection
 });
