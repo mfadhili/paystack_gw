@@ -19,11 +19,14 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
     if (!event) throw new Error("Webhook event not found");
 
     const { event: eventType, data } = event as any;
+    console.log(`[Webhook] Processing event ${eventType} with ID: ${eventId}`);
+
 
     switch (eventType) {
         case "invoice.create":
         case "invoice.update":
         case "invoice.payment_failed":
+            console.log(`[Webhook:Invoice] Handling ${eventType} for invoice ${data.invoice_code}`);
             await PaystackBillingInvoiceModel.findOneAndUpdate(
                 { invoiceCode: data.invoice_code },
                 {
@@ -48,6 +51,7 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
             break;
 
         case "charge.success":
+            console.log(`[Webhook:Charge] Received payment success for ${data.reference}`);
             await PaystackBillingTransactionModel.findOneAndUpdate(
                 { reference: data.reference },
                 {
@@ -81,6 +85,7 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
         case "subscription.create":
         case "subscription.disable":
         case "subscription.not_renew":
+            console.log(`[Webhook:Subscription] Processing ${eventType} for subscription ${data.subscription_code}`);
             await PaystackBillingSubscriptionModel.findOneAndUpdate(
                 { subscriptionCode: data.subscription_code },
                 {
@@ -108,6 +113,9 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
             if (customer) {
                 let isActive = false;
                 let isTrialing = false;
+
+                console.log(`[Webhook:Subscription] Updating status for customer ${customer.customerCode}`);
+
 
                 switch (data.status) {
                     case "active":
@@ -139,11 +147,14 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
                     },
                     { upsert: true, new: true }
                 );
+            } else {
+                console.warn(`[Webhook:Subscription] Customer not found for ID ${data.customer?.id}`);
             }
             break;
 
         case "customeridentification.success":
         case "customeridentification.failed":
+            console.log(`[Webhook:CustomerID] Identification event for customer ${data.customer_code}`);
             await PaystackBillingCustomerModel.findOneAndUpdate(
                 { customerCode: data.customer_code },
                 {
@@ -161,13 +172,15 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
             break;
 
         default:
-            console.log("Unhandled event:", eventType);
+            console.log(`[Webhook] Unhandled event type: ${eventType}`);
             break;
     }
     // Mark as processed (optional)
     event.processed = true;
     event.processedAt = new Date();
     await event.save();
+
+    console.log(`[Webhook] Completed processing of event ${eventType} (ID: ${eventId})`);
 
     return { message: "Webhook event processed", eventType };
 };
