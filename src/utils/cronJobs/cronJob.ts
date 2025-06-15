@@ -114,7 +114,7 @@ export const startPaystackTransactionSyncJob = () => {
 
 export const runAllCronJobs = () => {
     startPaystackPlanSyncJob();
-    startPaystackCustomerSyncJob(); // ✅ Now included
-    startPaystackSubscriptionSyncJob(); // ✅ Now included
-    startPaystackTransactionSyncJob(); // ✅ Include this line
+    startPaystackCustomerSyncJob();
+    // startPaystackSubscriptionSyncJob();
+    startPaystackTransactionSyncJob();
 };

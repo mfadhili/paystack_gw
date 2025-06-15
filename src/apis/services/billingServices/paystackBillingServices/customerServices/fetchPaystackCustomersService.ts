@@ -1,23 +1,51 @@
 // src/apis/services/billingServices/paystackBillingServices/customerServices/fetchPaystackCustomersService.ts
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { PAYSTACK_SECRET_KEY } from "../../../../../config/config";
-import PaystackBillingCustomerModel , {
+import PaystackBillingCustomerModel, {
     IPaystackBillingCustomer
 } from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingCustomerModel";
 
+interface PaystackCustomer {
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone: string;
+    metadata: any;
+    domain: string;
+    customer_code: string;
+    id: number;
+    integration: number;
+    risk_action: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface PaystackCustomerResponse {
+    status: boolean;
+    message: string;
+    data: PaystackCustomer[];
+    meta: {
+        next: string | null;
+        perPage: number;
+    };
+}
+
 export const fetchAndStorePaystackCustomers = async (): Promise<void> => {
     try {
-        let page = 1;
+        let nextCursor: string | null = null;
         let hasMore = true;
 
         while (hasMore) {
-            const res = await axios.get(`https://api.paystack.co/customer?page=${page}&perPage=50`, {
-                headers: {
-                    Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
-                },
+            const res: AxiosResponse<PaystackCustomerResponse> = await axios.get("https://api.paystack.co/customer", {
+                headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` },
+                params: {
+                    use_cursor: true,
+                    perPage: 50,
+                    ...(nextCursor ? { next: nextCursor } : {})
+                }
             });
 
-            const customers: any[] = res.data?.data || [];
+            const customers = res.data.data;
 
             for (const cust of customers) {
                 const existing = await PaystackBillingCustomerModel.findOne({ customerCode: cust.customer_code });
@@ -44,13 +72,13 @@ export const fetchAndStorePaystackCustomers = async (): Promise<void> => {
                 }
             }
 
-            const { page: currentPage, pageCount } = res.data.meta;
-            hasMore = currentPage < pageCount;
-            page++;
+            nextCursor = res.data.meta?.next || null;
+            hasMore = !!nextCursor;
         }
 
-        console.log(`[PaystackCustomerSync] Synced Paystack customers`);
+        console.log(`[PaystackCustomerSync] Synced all customers`);
     } catch (error) {
         console.error(`[PaystackCustomerSync] Failed to fetch customers`, error);
     }
 };
+

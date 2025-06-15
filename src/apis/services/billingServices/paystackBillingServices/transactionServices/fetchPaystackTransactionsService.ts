@@ -1,30 +1,61 @@
 // src/apis/services/billingServices/paystackBillingServices/transactionServices/fetchPaystackTransactionsService.ts
 
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { PAYSTACK_SECRET_KEY } from "../../../../../config/config";
-import {
-    PaystackBillingTransactionModel
-} from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingTransactionModel";
+import { PaystackBillingTransactionModel } from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingTransactionModel";
 
+interface PaystackTransaction {
+    reference: string;
+    status: string;
+    amount: number;
+    currency: string;
+    customer: {
+        id: number;
+        email: string;
+        customer_code: string;
+        first_name: string;
+        last_name: string;
+        phone: string;
+    };
+    channel: string;
+    gateway_response: string;
+    paid_at: string;
+    created_at: string;
+    updated_at: string;
+    metadata: any;
+    fees: number;
+    integration: number;
+    domain: string;
+    authorization?: any;
+}
+
+interface PaystackTransactionResponse {
+    status: boolean;
+    message: string;
+    data: PaystackTransaction[];
+    meta: {
+        next?: string | null;
+        perPage: number;
+    };
+}
 
 export const fetchAndStorePaystackTransactions = async () => {
-    let page = 1;
-    const perPage = 50;
+    let nextCursor: string | null = null;
     let hasMore = true;
 
     while (hasMore) {
-        const res = await axios.get("https://api.paystack.co/transaction", {
+        const res: AxiosResponse<PaystackTransactionResponse> = await axios.get("https://api.paystack.co/transaction", {
             headers: {
-                Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+                Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
             },
             params: {
-                page,
-                perPage
+                use_cursor: true,
+                perPage: 50,
+                ...(nextCursor ? { next: nextCursor } : {})
             }
         });
 
-        const transactions = res.data.data;
-        if (!transactions.length) break;
+        const transactions = res.data?.data || [];
 
         for (const tx of transactions) {
             const update = {
@@ -59,7 +90,9 @@ export const fetchAndStorePaystackTransactions = async () => {
             );
         }
 
-        page++;
-        hasMore = transactions.length === perPage;
+        nextCursor = res.data.meta?.next || null;
+        hasMore = !!nextCursor;
     }
+
+    console.log(`[PaystackTransactionSync] Synced transactions with cursor pagination`);
 };

@@ -1,21 +1,79 @@
-import axios from 'axios';
+// src/apis/services/billingServices/paystackBillingServices/subscriptionServices/fetchPaystackSubscriptionsService.ts
+import axios, { AxiosResponse } from 'axios';
 import { PAYSTACK_SECRET_KEY } from '../../../../../config/config';
 import PaystackBillingSubscriptionModel
     from "../../../../../models/billingModels/paystackBillingModels/PaystackBillingSubscriptionModel";
-import { BillingSubscriptionStatusModel } from '../../../../../models/billingModels/BillingSubscriptionStatus';
+import {BillingSubscriptionStatusModel} from "../../../../../models/billingModels/BillingSubscriptionStatus";
 
+interface PaystackCustomer {
+    customer_code: string;
+}
+
+interface PaystackPlan {
+    plan_code: string;
+}
+
+interface PaystackAuthorization {
+    authorization_code: string;
+    bin: string;
+    last4: string;
+    exp_month: string;
+    exp_year: string;
+    channel: string;
+    card_type: string;
+    bank: string;
+    country_code: string;
+    brand: string;
+    reusable: boolean;
+    signature: string;
+    account_name: string | null;
+}
+
+interface PaystackSubscription {
+    subscription_code: string;
+    email_token: string;
+    customer: PaystackCustomer;
+    plan: PaystackPlan;
+    integration: number;
+    domain: string;
+    status: string;
+    start: number;
+    quantity: number;
+    amount: number;
+    authorization: PaystackAuthorization;
+    easy_cron_id?: string | null;
+    cron_expression?: string;
+    next_payment_date?: string;
+    open_invoice?: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface PaystackSubscriptionResponse {
+    status: boolean;
+    message: string;
+    data: PaystackSubscription[];
+    meta: {
+        total: number;
+        skipped: number;
+        perPage: number;
+        page: number;
+        pageCount: number;
+    };
+}
 
 export const fetchAndStorePaystackSubscriptions = async (): Promise<void> => {
     let page = 1;
+    const perPage = 50;
     let hasMore = true;
 
     while (hasMore) {
-        const response = await axios.get('https://api.paystack.co/subscription', {
+        const response: AxiosResponse<PaystackSubscriptionResponse> = await axios.get('https://api.paystack.co/subscription', {
             headers: {
                 Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
             },
             params: {
-                perPage: 50,
+                perPage,
                 page,
             },
         });
@@ -68,15 +126,18 @@ export const fetchAndStorePaystackSubscriptions = async (): Promise<void> => {
                     subscriptionId: sub.subscription_code,
                     subscriptionStatus: sub.status,
                     nextBillingDate: sub.next_payment_date,
-                    trialing: sub.status === "trialing",
-                    active: sub.status === "active",
-                    syncedFromGatewayAt: new Date()
+                    // trialing: sub.status === "trialing",
+                    // active: sub.status === "active",
+                    syncedFromGatewayAt: new Date(),
                 },
                 { upsert: true, new: true }
             );
         }
 
-        hasMore = response.data.meta.page < response.data.meta.pageCount;
+        const { page: currentPage, pageCount } = response.data.meta;
+        hasMore = currentPage < pageCount;
         page++;
     }
+
+    console.log(`[PaystackSubscriptionSync] Synced all subscriptions`);
 };
