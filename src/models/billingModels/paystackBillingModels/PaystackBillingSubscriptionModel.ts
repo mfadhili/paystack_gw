@@ -8,7 +8,7 @@ export interface IPaystackBillingSubscription extends Document {
     integration: number;
     domain: string;
     status: string;
-    start: number;
+    start: Date;
     quantity: number;
     amount: number;
     authorization: {
@@ -43,7 +43,7 @@ const PaystackBillingSubscriptionSchema = new Schema<IPaystackBillingSubscriptio
     integration: { type: Number, required: true },
     domain: { type: String, required: true },
     status: { type: String, required: true },
-    start: { type: Number, required: true },
+    start: { type: Date, required: true },
     quantity: { type: Number, default: 1 },
     amount: { type: Number, required: true },
     authorization: {
