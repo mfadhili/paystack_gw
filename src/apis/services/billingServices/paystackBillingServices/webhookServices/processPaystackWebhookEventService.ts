@@ -96,7 +96,7 @@ export const processPaystackWebhookEventService = async (eventId: string) => {
                     integration: 0, // Set from context
                     domain: data.domain,
                     status: data.status,
-                    start: new Date(data.created_at),
+                    start: new Date(data.createdAt),
                     quantity: 1,
                     amount: data.amount,
                     authorization: data.authorization,
