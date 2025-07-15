@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use(cookieParser());
 
 logger = setupLogger();
-if (NODE_ENV === 'production') {
+if (NODE_ENV === 'production' || 'development') {
     console.log("logging in production");
     app.use(customLoggingMiddleware(logger));
 }
